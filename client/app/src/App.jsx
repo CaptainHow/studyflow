@@ -1,12 +1,28 @@
-import { Dashboard } from "./pages/Dashboard"
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import CoursePage from "./pages/CoursePage";
+import Register from "./pages/Register";
 
 function App() {
 
   return (
-    <>
-      <Dashboard />
-    </>
-  )
+    <BrowserRouter>
+
+      <Routes>
+
+        <Route path="/" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
+        <Route path="/dashboard" element={<Dashboard />} />
+
+        <Route path="/course/:id" element={<CoursePage />} />
+
+      </Routes>
+
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
