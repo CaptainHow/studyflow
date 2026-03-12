@@ -1,4 +1,3 @@
-import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 function formatISOToMMDDYYYY(iso) {
@@ -112,7 +111,7 @@ function DatePickerInput({ label, value, onChange, placeholder = "MM/DD/YYYY" })
       <button
         type="button"
         onClick={() => setOpen(v => !v)}
-        className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-white text-left flex items-center justify-between"
+        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-white text-left flex items-center justify-between"
       >
         <span className={value ? "text-gray-900" : "text-gray-400"}>
           {value ? formatISOToMMDDYYYY(value) : placeholder}
@@ -219,163 +218,147 @@ function DatePickerInput({ label, value, onChange, placeholder = "MM/DD/YYYY" })
   );
 }
 
-function Register() {
-  const navigate = useNavigate();
+function TaskModal({ close, save, initialData }) {
   const [formData, setFormData] = useState({
-    firstName: "",
-    middleName: "",
-    lastName: "",
-    birthDate: "",
-    email: "",
-    password: "",
-    confirmPassword: ""
+    name: "",
+    due: "",
+    priority: "Medium",
+    status: "Todo",
+    description: ""
   });
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    if (initialData) {
+      setFormData(initialData);
+    }
+  }, [initialData]);
+
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
     setError("");
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.firstName || !formData.lastName || !formData.email || !formData.password) {
-      setError("Please fill in all required fields");
+    if (!formData.name.trim()) {
+      setError("Please enter a task name");
       return;
     }
-    const emailOk = /^\S+@\S+\.\S+$/.test(formData.email);
-    if (!emailOk) {
-      setError("Please enter a valid email address");
+    if (!formData.due) {
+      setError("Please select a due date");
       return;
     }
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
+    if (!parseISODate(formData.due)) {
+      setError("Invalid due date");
       return;
     }
-    if (formData.birthDate && !parseISODate(formData.birthDate)) {
-      setError("Invalid birth date");
-      return;
-    }
-    // Simulate register
-    navigate("/");
+    save(formData);
+    close();
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-lg border border-gray-100 my-8">
-        
-        <div className="text-center mb-8">
-          <div className="w-12 h-12 bg-blue-600 rounded-lg mx-auto flex items-center justify-center mb-3 text-white">
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-md transform transition-all">
+        <div className="flex justify-between items-center p-6 border-b">
+          <h2 className="text-xl font-semibold text-gray-800">
+            {initialData ? "Edit Task" : "New Task"}
+          </h2>
+          <button onClick={close} className="text-gray-400 hover:text-gray-600 transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-              <circle cx="8.5" cy="7" r="4"></circle>
-              <line x1="20" y1="8" x2="20" y2="14"></line>
-              <line x1="23" y1="11" x2="17" y2="11"></line>
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900">Create Account</h1>
-          <p className="text-gray-500 mt-2">Join StudyFlow to manage your learning journey.</p>
+          </button>
         </div>
 
-        <form noValidate onSubmit={handleSubmit} className="space-y-4">
+        <form noValidate onSubmit={handleSubmit} className="p-6 space-y-4">
           {error && (
             <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg border border-red-100">
               {error}
             </div>
           )}
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
-              <input
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleChange}
-                className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Middle Name</label>
-              <input
-                name="middleName"
-                value={formData.middleName}
-                onChange={handleChange}
-                className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-              />
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Task Name *</label>
+            <input
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="e.g., Read Chapter 4"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+            />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
-              <input
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
-                className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-              />
-            </div>
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <DatePickerInput
-                label="Birth Date"
-                value={formData.birthDate}
-                onChange={(next) => setFormData(prev => ({ ...prev, birthDate: next }))}
+                label="Due Date *"
+                value={formData.due}
+                onChange={(next) => setFormData(prev => ({ ...prev, due: next }))}
                 placeholder="MM/DD/YYYY"
               />
             </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+              <select
+                name="priority"
+                value={formData.priority}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-white"
+              >
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+              </select>
+            </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email Address *</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
+            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+            <select
+              name="status"
+              value={formData.status}
               onChange={handleChange}
-              className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-            />
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-white"
+            >
+              <option value="Todo">Todo</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Done">Done</option>
+            </select>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password *</label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
+            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <textarea
+              name="description"
+              value={formData.description}
               onChange={handleChange}
-              className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+              rows="3"
+              placeholder="Add details..."
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-none"
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password *</label>
-            <input
-              type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-            />
+          <div className="flex justify-end gap-3 pt-4">
+            <button
+              type="button"
+              onClick={close}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm"
+            >
+              {initialData ? "Save Changes" : "Create Task"}
+            </button>
           </div>
-
-          <button 
-            type="submit"
-            className="w-full bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm focus:ring-4 focus:ring-blue-100 mt-2"
-          >
-            Create Account
-          </button>
         </form>
-
-        <p className="text-sm text-center mt-6 text-gray-600">
-          Already have an account?
-          <Link to="/" className="ml-1 text-blue-600 font-medium hover:underline">
-            Log In
-          </Link>
-        </p>
-
       </div>
     </div>
   );
 }
 
-export default Register;
+export default TaskModal;
