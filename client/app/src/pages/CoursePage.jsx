@@ -1,46 +1,85 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AppLayout from "../layout/AppLayout";
 import TaskTable from "../components/TaskTable";
 import TaskModal from "../components/TaskModal";
 import ConfirmModal from "../components/ConfirmModal";
 import { useParams } from "react-router-dom";
-import { INITIAL_TASKS } from "../data/mockData";
+import {
+  getTasks,
+  createTask,
+  updateTask,
+  deleteTask,
+} from "../services/taskService";
 
 function CoursePage() {
   const { id } = useParams();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [deletingTask, setDeletingTask] = useState(null);
+  const [tasks, setTasks] = useState([]);
+  const [error, setError] = useState("");
 
-  const [tasks, setTasks] = useState(INITIAL_TASKS);
+  useEffect(() => {
+    const loadTasks = async () => {
+      try {
+        const data = await getTasks();
+        const filteredTasks = data.filter((task) => task.course === Number(id));
+        setTasks(filteredTasks);
+      } catch (err) {
+        setError(err.message || "Failed to load tasks");
+      }
+    };
 
-  const handleSaveTask = (taskData) => {
-    if (editingTask) {
-      setTasks(tasks.map(t => 
-        t.id === editingTask.id ? { ...t, ...taskData } : t
-      ));
-    } else {
-      const newTask = {
-        id: Date.now(),
-        ...taskData
-      };
-      setTasks([...tasks, newTask]);
+    loadTasks();
+  }, [id]);
+
+  const handleSaveTask = async (taskData) => {
+    try {
+      if (editingTask) {
+        const updatedTask = await updateTask(editingTask.id, taskData);
+        setTasks(tasks.map((t) =>
+          t.id === editingTask.id ? updatedTask : t
+        ));
+      } else {
+        const newTask = await createTask({
+          ...taskData,
+          course: Number(id),
+        });
+        setTasks([...tasks, newTask]);
+      }
+
+      closeModal();
+    } catch (err) {
+      setError(err.message || "Failed to save task");
     }
-    closeModal();
   };
 
-  const handleDeleteTask = () => {
-    if (deletingTask) {
-      setTasks(tasks.filter(t => t.id !== deletingTask.id));
+  const handleDeleteTask = async () => {
+    if (!deletingTask) return;
+
+    try {
+      await deleteTask(deletingTask.id);
+      setTasks(tasks.filter((t) => t.id !== deletingTask.id));
       setDeletingTask(null);
+    } catch (err) {
+      setError(err.message || "Failed to delete task");
     }
   };
 
-  const handleToggleStatus = (task) => {
-    const newStatus = task.status === "Done" ? "Todo" : "Done";
-    setTasks(tasks.map(t => 
-      t.id === task.id ? { ...t, status: newStatus } : t
-    ));
+  const handleToggleStatus = async (task) => {
+    const newStatus = task.status === "DONE" ? "TODO" : "DONE";
+
+    try {
+      const updatedTask = await updateTask(task.id, {
+        status: newStatus,
+      });
+
+      setTasks(tasks.map((t) =>
+        t.id === task.id ? updatedTask : t
+      ));
+    } catch (err) {
+      setError(err.message || "Failed to update task status");
+    }
   };
 
   const openNewModal = () => {
@@ -64,6 +103,12 @@ function CoursePage() {
 
   return (
     <AppLayout>
+      {error && (
+        <div className="mb-4 rounded-lg border border-red-100 bg-red-50 p-3 text-sm text-red-600">
+          {error}
+        </div>
+      )}
+
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Course Details</h1>
@@ -96,7 +141,7 @@ function CoursePage() {
       {deletingTask && (
         <ConfirmModal
           title="Delete Task"
-          message={`Are you sure you want to delete "${deletingTask.name}"?`}
+          message={`Are you sure you want to delete "${deletingTask.task_name}"?`}
           onConfirm={handleDeleteTask}
           onCancel={() => setDeletingTask(null)}
         />

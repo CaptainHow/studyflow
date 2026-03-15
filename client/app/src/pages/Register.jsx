@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { registerUser } from "../services/authService";
 
 function formatISOToMMDDYYYY(iso) {
   if (!iso) return "";
@@ -237,33 +238,51 @@ function Register() {
     setError("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!formData.firstName || !formData.lastName || !formData.email || !formData.password) {
       setError("Please fill in all required fields");
       return;
     }
+
     const emailOk = /^\S+@\S+\.\S+$/.test(formData.email);
     if (!emailOk) {
       setError("Please enter a valid email address");
       return;
     }
+
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match");
       return;
     }
+
     if (formData.birthDate && !parseISODate(formData.birthDate)) {
       setError("Invalid birth date");
       return;
     }
-    // Simulate register
-    navigate("/");
+
+    try {
+      const userData = {
+        email_id: formData.email,
+        first_name: formData.firstName,
+        middle_name: formData.middleName || null,
+        last_name: formData.lastName,
+        birth_date: formData.birthDate || null,
+        password: formData.password,
+      };
+
+      await registerUser(userData);
+      navigate("/");
+    } catch (err) {
+      setError(err.message || "Registration failed. Please try again.");
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
       <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-lg border border-gray-100 my-8">
-        
+
         <div className="text-center mb-8">
           <div className="w-12 h-12 bg-blue-600 rounded-lg mx-auto flex items-center justify-center mb-3 text-white">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -358,7 +377,7 @@ function Register() {
             />
           </div>
 
-          <button 
+          <button
             type="submit"
             className="w-full bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm focus:ring-4 focus:ring-blue-100 mt-2"
           >

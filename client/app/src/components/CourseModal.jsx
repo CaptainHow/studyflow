@@ -2,14 +2,17 @@ import { useState, useEffect } from "react";
 
 function CourseModal({ close, save, initialData }) {
   const [formData, setFormData] = useState({
-    name: "",
-    code: ""
+    course_name: "",
+    course_code: ""
   });
   const [error, setError] = useState("");
 
   useEffect(() => {
     if (initialData) {
-      setFormData(initialData);
+      setFormData({
+        course_name: initialData.course_name || "",
+        course_code: initialData.course_code || ""
+      });
     }
   }, [initialData]);
 
@@ -21,14 +24,17 @@ function CourseModal({ close, save, initialData }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.name.trim()) {
+
+    if (!formData.course_name.trim()) {
       setError("Please enter a course name");
       return;
     }
-    if (!formData.code.trim()) {
+
+    if (!formData.course_code.trim()) {
       setError("Please enter a course code");
       return;
     }
+
     save(formData);
     close();
   };
@@ -36,7 +42,6 @@ function CourseModal({ close, save, initialData }) {
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-sm transform transition-all">
-        
         <div className="flex justify-between items-center p-5 border-b">
           <h2 className="text-lg font-semibold text-gray-800">
             {initialData ? "Edit Course" : "New Course"}
@@ -55,11 +60,12 @@ function CourseModal({ close, save, initialData }) {
               {error}
             </div>
           )}
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Course Name *</label>
             <input
-              name="name"
-              value={formData.name}
+              name="course_name"
+              value={formData.course_name}
               onChange={handleChange}
               placeholder="e.g. Machine Learning"
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
@@ -69,8 +75,8 @@ function CourseModal({ close, save, initialData }) {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Course Code *</label>
             <input
-              name="code"
-              value={formData.code}
+              name="course_code"
+              value={formData.course_code}
               onChange={handleChange}
               placeholder="e.g. CS101"
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"

@@ -53,9 +53,7 @@ function DatePickerInput({ label, value, onChange, placeholder = "MM/DD/YYYY" })
   const [open, setOpen] = useState(false);
   const [viewMonth, setViewMonth] = useState(() => startOfMonth(new Date()));
 
-  const selectedDate = useMemo(() => {
-    return parseISODate(value);
-  }, [value]);
+  const selectedDate = useMemo(() => parseISODate(value), [value]);
 
   useEffect(() => {
     if (open) {
@@ -110,7 +108,7 @@ function DatePickerInput({ label, value, onChange, placeholder = "MM/DD/YYYY" })
       <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
       <button
         type="button"
-        onClick={() => setOpen(v => !v)}
+        onClick={() => setOpen((v) => !v)}
         className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-white text-left flex items-center justify-between"
       >
         <span className={value ? "text-gray-900" : "text-gray-400"}>
@@ -140,24 +138,18 @@ function DatePickerInput({ label, value, onChange, placeholder = "MM/DD/YYYY" })
           <div className="flex items-center justify-between mb-3">
             <button
               type="button"
-              onClick={() => setViewMonth(m => addMonths(m, -1))}
+              onClick={() => setViewMonth((m) => addMonths(m, -1))}
               className="p-2 rounded-md hover:bg-gray-100 text-gray-700"
-              aria-label="Previous month"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="15 18 9 12 15 6"></polyline>
-              </svg>
+              ‹
             </button>
             <div className="text-sm font-semibold text-gray-900">{monthLabel}</div>
             <button
               type="button"
-              onClick={() => setViewMonth(m => addMonths(m, 1))}
+              onClick={() => setViewMonth((m) => addMonths(m, 1))}
               className="p-2 rounded-md hover:bg-gray-100 text-gray-700"
-              aria-label="Next month"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="9 18 15 12 9 6"></polyline>
-              </svg>
+              ›
             </button>
           </div>
 
@@ -220,40 +212,50 @@ function DatePickerInput({ label, value, onChange, placeholder = "MM/DD/YYYY" })
 
 function TaskModal({ close, save, initialData }) {
   const [formData, setFormData] = useState({
-    name: "",
-    due: "",
-    priority: "Medium",
-    status: "Todo",
-    description: ""
+    task_name: "",
+    due_date: "",
+    priority: "MEDIUM",
+    status: "TODO",
+    description: "",
   });
   const [error, setError] = useState("");
 
   useEffect(() => {
     if (initialData) {
-      setFormData(initialData);
+      setFormData({
+        task_name: initialData.task_name || "",
+        due_date: initialData.due_date || "",
+        priority: initialData.priority || "MEDIUM",
+        status: initialData.status || "TODO",
+        description: initialData.description || "",
+      });
     }
   }, [initialData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
     setError("");
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.name.trim()) {
+
+    if (!formData.task_name.trim()) {
       setError("Please enter a task name");
       return;
     }
-    if (!formData.due) {
-      setError("Please select a due date");
-      return;
-    }
-    if (!parseISODate(formData.due)) {
+
+    if (formData.due_date && !parseISODate(formData.due_date)) {
       setError("Invalid due date");
       return;
     }
+
+    if (!formData.description.trim()) {
+      setError("Please enter a description");
+      return;
+    }
+
     save(formData);
     close();
   };
@@ -266,10 +268,7 @@ function TaskModal({ close, save, initialData }) {
             {initialData ? "Edit Task" : "New Task"}
           </h2>
           <button onClick={close} className="text-gray-400 hover:text-gray-600 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
+            ×
           </button>
         </div>
 
@@ -279,13 +278,14 @@ function TaskModal({ close, save, initialData }) {
               {error}
             </div>
           )}
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Task Name *</label>
             <input
-              name="name"
-              value={formData.name}
+              name="task_name"
+              value={formData.task_name}
               onChange={handleChange}
-              placeholder="e.g., Read Chapter 4"
+              placeholder="e.g. Read Chapter 4"
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
             />
           </div>
@@ -293,12 +293,13 @@ function TaskModal({ close, save, initialData }) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <DatePickerInput
-                label="Due Date *"
-                value={formData.due}
-                onChange={(next) => setFormData(prev => ({ ...prev, due: next }))}
+                label="Due Date"
+                value={formData.due_date}
+                onChange={(next) => setFormData((prev) => ({ ...prev, due_date: next }))}
                 placeholder="MM/DD/YYYY"
               />
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
               <select
@@ -307,9 +308,9 @@ function TaskModal({ close, save, initialData }) {
                 onChange={handleChange}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-white"
               >
-                <option value="Low">Low</option>
-                <option value="Medium">Medium</option>
-                <option value="High">High</option>
+                <option value="LOW">Low</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HIGH">High</option>
               </select>
             </div>
           </div>
@@ -322,14 +323,14 @@ function TaskModal({ close, save, initialData }) {
               onChange={handleChange}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-white"
             >
-              <option value="Todo">Todo</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Done">Done</option>
+              <option value="TODO">Todo</option>
+              <option value="IN_PROGRESS">In Progress</option>
+              <option value="DONE">Done</option>
             </select>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Description *</label>
             <textarea
               name="description"
               value={formData.description}

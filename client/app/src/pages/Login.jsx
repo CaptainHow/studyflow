@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { loginUser } from "../services/authService";
 
 function Login() {
   const navigate = useNavigate();
@@ -9,19 +10,31 @@ function Login() {
   });
   const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!formData.email || !formData.password) {
       setError("Please fill in all fields");
       return;
     }
+
     const emailOk = /^\S+@\S+\.\S+$/.test(formData.email);
     if (!emailOk) {
       setError("Please enter a valid email address");
       return;
     }
-    // Simulate login
-    navigate("/dashboard");
+
+    try {
+      const data = await loginUser(formData.email, formData.password);
+
+      localStorage.setItem("access", data.access);
+      localStorage.setItem("refresh", data.refresh);
+
+      navigate("/dashboard");
+
+    } catch (err) {
+      setError("Login failed. Please check your email and password.");
+    }
   };
 
   const handleChange = (e) => {
@@ -32,7 +45,7 @@ function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
       <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md border border-gray-100">
-        
+
         <div className="text-center mb-8">
           <div className="w-12 h-12 bg-blue-600 rounded-lg mx-auto flex items-center justify-center mb-3 text-white">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -79,7 +92,7 @@ function Login() {
             />
           </div>
 
-          <button 
+          <button
             type="submit"
             className="w-full bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm focus:ring-4 focus:ring-blue-100"
           >

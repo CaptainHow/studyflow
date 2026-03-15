@@ -1,27 +1,64 @@
-import { INITIAL_COURSES, INITIAL_TASKS } from '../data/mockData';
+import { apiRequest } from "./apiClient";
 
-// 模拟 API Endpoint (满足测试 "API endpoint" 的要求)
-export const fetchCoursesAPI = async () => {
-  // 模拟网络请求延迟
-  return Promise.resolve(INITIAL_COURSES);
+export const getCourses = async () => {
+  const response = await apiRequest("/courses/", {
+    method: "GET",
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to fetch courses");
+  }
+
+  return data;
 };
 
-export const fetchTasksAPI = async () => {
-  return Promise.resolve(INITIAL_TASKS);
+export const createCourse = async (courseData) => {
+  const response = await apiRequest("/courses/", {
+    method: "POST",
+    body: JSON.stringify(courseData),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to create course");
+  }
+
+  return data;
 };
 
-// 核心业务逻辑 (Core Business Logic): 计算课程进度百分比
-export const calculateCourseProgress = (courseId, tasks) => {
-  const courseTasks = tasks.filter(task => task.courseId === courseId);
-  if (courseTasks.length === 0) return 0;
+export const updateCourse = async (courseId, courseData) => {
+  const response = await apiRequest(`/courses/${courseId}/`, {
+    method: "PATCH",
+    body: JSON.stringify(courseData),
+  });
 
-  const completedTasks = courseTasks.filter(task => task.status === 'completed');
-  return Math.round((completedTasks.length / courseTasks.length) * 100);
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to update course");
+  }
+
+  return data;
 };
 
-// 核心业务逻辑 (Core Business Logic): 获取并按日期排序待办任务
-export const getPendingTasksSorted = (tasks) => {
-  return tasks
-    .filter(task => task.status !== 'completed')
-    .sort((a, b) => new Date(a.due) - new Date(b.due));
+export const deleteCourse = async (courseId) => {
+  const response = await apiRequest(`/courses/delete/${courseId}/`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    let errorMessage = "Failed to delete course";
+    try {
+      const data = await response.json();
+      errorMessage = data.detail || errorMessage;
+    } catch {
+      // ignore json parse failure
+    }
+    throw new Error(errorMessage);
+  }
+
+  return true;
 };
