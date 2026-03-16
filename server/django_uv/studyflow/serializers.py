@@ -35,5 +35,4 @@ class TaskSerializer(serializers.ModelSerializer):
         fields = '__all__' 
     
     def validate_course(self, value):
-        print(value, "adadada")
         return value

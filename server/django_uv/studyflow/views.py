@@ -52,7 +52,6 @@ class CourseDeleteView(generics.DestroyAPIView):
     def get_queryset(self):
         user = self.request.user
         courses = Course.objects.filter(user=user)
-        print(courses)
         return courses
 
 # Task Views
@@ -85,7 +84,6 @@ class TaskUpdateView(generics.UpdateAPIView):
 
     def perform_update(self, serializer):
         # Prevent assigning task to another user's course
-        print("here?")
         course = serializer.validated_data.get("course", serializer.instance.course)
         if course.user != self.request.user:
             raise ValidationError({"course": "Cannot assign task to another user's course"})
