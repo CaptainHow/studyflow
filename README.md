@@ -15,37 +15,67 @@ Python dependencies are managed using **uv**.
 │       ├── src/
 │       │   ├── assets/
 │       │   ├── components/
+│       │   │   ├── ConfirmModal.jsx
+│       │   │   ├── CourseModal.jsx
+│       │   │   ├── Sidebar.jsx
+│       │   │   ├── TaskModal.jsx
+│       │   │   └── TaskTable.jsx
+│       │   ├── data/
+│       │   │   └── mockData.js
+│       │   ├── layout/
+│       │   │   └── AppLayout.jsx
 │       │   ├── pages/
-│       │   │   └── Dashboard.jsx
+│       │   │   ├── CoursePage.jsx
+│       │   │   ├── Dashboard.jsx
+│       │   │   ├── Login.jsx
+│       │   │   └── Register.jsx
+│       │   ├── services/
+│       │   │   ├── apiClient.js
+│       │   │   ├── authService.js
+│       │   │   ├── courseService.js
+│       │   │   ├── courseService.test.js
+│       │   │   └── taskService.js
+│       │   ├── utils/
+│       │   │   ├── dateHelpers.js
+│       │   │   └── dateHelpers.test.js
 │       │   ├── App.css
 │       │   ├── App.jsx
 │       │   ├── index.css
 │       │   └── main.jsx
 │       ├── index.html
 │       ├── package.json
-│       └── vite.config.js
+│       ├── vite.config.js
+│       ├── README.md
+│       ├── eslint.config.js
+│       ├── package-lock.json
+│       └── yarn.lock
 │
 ├── server/                 # Django backend
 │   └── django_uv/
-│       ├── django_project/
+│       ├── backend/
+│       │   ├── __init__.py
+│       │   ├── asgi.py
 │       │   ├── settings.py
 │       │   ├── urls.py
-│       │   ├── asgi.py
 │       │   └── wsgi.py
-│       │
-│       ├── studyflow/      # Django app
+│       ├── studyflow/
 │       │   ├── migrations/
 │       │   ├── admin.py
 │       │   ├── apps.py
+│       │   ├── managers.py
 │       │   ├── models.py
-│       │   ├── views.py
-│       │   └── tests.py
-│       │
+│       │   ├── serializers.py
+│       │   ├── tests.py
+│       │   ├── urls.py
+│       │   └── views.py
+│       ├── README.md
 │       ├── manage.py
 │       ├── pyproject.toml
 │       └── uv.lock
 │
-└── README.md
+├── README.md
+├── package.json
+└── package-lock.json
 ```
 
 ---
@@ -110,6 +140,14 @@ uv run python manage.py migrate
 
 ```bash
 uv run python manage.py createsuperuser
+```
+
+---
+
+## Run Django Tests (optional)
+
+```bash
+uv run python manage.py test
 ```
 
 ---
