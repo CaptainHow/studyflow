@@ -36,7 +36,7 @@ export const registerUser = async (userData) => {
         const errorMessage =
             data.detail ||
             Object.entries(data)
-                .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(", ") : value}`)
+                .map(([_, value]) => `${Array.isArray(value) ? value.join(", ") : value}`)
                 .join(" | ") ||
             "Registration failed";
 

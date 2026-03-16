@@ -18,6 +18,8 @@ function TaskTable({ tasks, onEdit, onDelete, onToggle }) {
         return matchesSearch && matchesPriority;
       })
       .sort((a, b) => {
+        if (a.status === "DONE" && b.status !== "DONE") return 1;
+        if (a.status !== "DONE" && b.status === "DONE") return -1;
         if (sortBy === "due") {
           return new Date(a.due_date || 0) - new Date(b.due_date || 0);
         }
@@ -58,19 +60,6 @@ function TaskTable({ tasks, onEdit, onDelete, onToggle }) {
         return "Low";
       default:
         return priority;
-    }
-  };
-
-  const getStatusLabel = (status) => {
-    switch (status) {
-      case "DONE":
-        return "Done";
-      case "IN_PROGRESS":
-        return "In Progress";
-      case "TODO":
-        return "Todo";
-      default:
-        return status;
     }
   };
 
@@ -144,34 +133,18 @@ function TaskTable({ tasks, onEdit, onDelete, onToggle }) {
               </tr>
             ) : (
               filteredTasks.map((task) => (
-                <tr key={task.id} className="hover:bg-gray-50/50 transition-colors group">
+                <tr key={task.id} className={`hover:bg-gray-50/50 transition-colors group ${task.status === "DONE" ? "bg-gray-50/70" : ""
+                  }`}>
                   <td className="p-4">
-                    <button
-                      type="button"
-                      onClick={() => onToggle(task)}
-                      aria-label={task.status === "DONE" ? "Mark as todo" : "Mark as done"}
-                      title={task.status === "DONE" ? "Mark as todo" : "Mark as done"}
-                      className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${task.status === "DONE"
-                        ? "bg-blue-600 border-blue-600"
-                        : "border-gray-300 hover:border-blue-500"
-                        }`}
+                    <select
+                      value={task.status}
+                      onChange={(e) => onToggle(task, e.target.value)}
+                      className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm bg-white focus:ring-2 focus:ring-blue-500 outline-none"
                     >
-                      {task.status === "DONE" && (
-                        <svg
-                          className="w-3.5 h-3.5 text-white"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="3"
-                            d="M5 13l4 4L19 7"
-                          ></path>
-                        </svg>
-                      )}
-                    </button>
+                      <option value="TODO">Todo</option>
+                      <option value="IN_PROGRESS">In Progress</option>
+                      <option value="DONE">Done</option>
+                    </select>
                   </td>
 
                   <td className="p-4">

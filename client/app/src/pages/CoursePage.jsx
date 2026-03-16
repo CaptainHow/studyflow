@@ -10,6 +10,7 @@ import {
   updateTask,
   deleteTask,
 } from "../services/taskService";
+import { getCourses } from "../services/courseService";
 
 function CoursePage() {
   const { id } = useParams();
@@ -17,6 +18,7 @@ function CoursePage() {
   const [editingTask, setEditingTask] = useState(null);
   const [deletingTask, setDeletingTask] = useState(null);
   const [tasks, setTasks] = useState([]);
+  const [courses, setCourses] = useState([]);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -33,6 +35,19 @@ function CoursePage() {
     loadTasks();
   }, [id]);
 
+  useEffect(() => {
+    const loadCourses = async () => {
+      try {
+        const data = await getCourses();
+        setCourses(data);
+      } catch (err) {
+        setError(err.message || "Failed to load courses");
+      }
+    };
+
+    loadCourses();
+  }, []);
+
   const handleSaveTask = async (taskData) => {
     try {
       if (editingTask) {
@@ -41,6 +56,7 @@ function CoursePage() {
           t.id === editingTask.id ? updatedTask : t
         ));
       } else {
+        setError("");
         const newTask = await createTask({
           ...taskData,
           course: Number(id),
@@ -66,8 +82,8 @@ function CoursePage() {
     }
   };
 
-  const handleToggleStatus = async (task) => {
-    const newStatus = task.status === "DONE" ? "TODO" : "DONE";
+  const handleToggleStatus = async (task, status) => {
+    const newStatus = status;
 
     try {
       const updatedTask = await updateTask(task.id, {
@@ -102,7 +118,7 @@ function CoursePage() {
   };
 
   return (
-    <AppLayout>
+    <AppLayout courses={courses}>
       {error && (
         <div className="mb-4 rounded-lg border border-red-100 bg-red-50 p-3 text-sm text-red-600">
           {error}

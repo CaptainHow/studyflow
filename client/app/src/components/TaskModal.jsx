@@ -256,6 +256,10 @@ function TaskModal({ close, save, initialData }) {
       return;
     }
 
+    if (formData.due_date == "") {
+      delete formData["due_date"]
+    }
+
     save(formData);
     close();
   };
