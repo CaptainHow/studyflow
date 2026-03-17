@@ -21,6 +21,9 @@ function TaskTable({ tasks, onEdit, onDelete, onToggle }) {
         if (a.status === "DONE" && b.status !== "DONE") return 1;
         if (a.status !== "DONE" && b.status === "DONE") return -1;
         if (sortBy === "due") {
+          if (!a.due_date && !b.due_date) return 0;
+          if (!a.due_date) return 1;
+          if (!b.due_date) return -1;
           return new Date(a.due_date || 0) - new Date(b.due_date || 0);
         }
 
@@ -176,7 +179,7 @@ function TaskTable({ tasks, onEdit, onDelete, onToggle }) {
                   </td>
 
                   <td className="p-4 text-right">
-                    <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex justify-end gap-2 opacity-100 transition-opacity">
                       <button
                         type="button"
                         onClick={() => onEdit(task)}

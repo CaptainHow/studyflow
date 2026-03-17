@@ -98,11 +98,11 @@ function Dashboard() {
           Add Course
         </button>
       </div>
-
+      {!courses.length && <div className="p-8 text-center text-gray-500">You don’t have any courses yet. Add one to start managing your tasks!</div>}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {courses.map((course) => (
           <div key={course.id} className="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow p-6 group relative">
-            <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="absolute top-4 right-4 flex gap-2 opacity-100 transition-opacity">
               <button
                 onClick={(e) => { e.preventDefault(); openEditModal(course); }}
                 className="p-1.5 text-gray-400 hover:text-blue-600 rounded-md hover:bg-blue-50"
