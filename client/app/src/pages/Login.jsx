@@ -1,9 +1,11 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { loginUser } from "../services/authService";
+import { useAuth } from "../context/AuthContext";
 
 function Login() {
   const navigate = useNavigate();
+  const { setSuccess } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: ""
@@ -30,6 +32,7 @@ function Login() {
       localStorage.setItem("access", data.access);
       localStorage.setItem("refresh", data.refresh);
 
+      setSuccess(true);
       navigate("/dashboard");
 
     } catch (err) {
