@@ -140,27 +140,62 @@ function DatePickerInput({ label, value, onChange, placeholder = "MM/DD/YYYY" })
       {open && (
         <div className="absolute z-50 mt-2 w-full rounded-lg border border-gray-200 bg-white shadow-lg p-3">
           <div className="flex items-center justify-between mb-3">
-            <button
-              type="button"
-              onClick={() => setViewMonth(m => addMonths(m, -1))}
-              className="p-2 rounded-md hover:bg-gray-100 text-gray-700"
-              aria-label="Previous month"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="15 18 9 12 15 6"></polyline>
-              </svg>
-            </button>
-            <div className="text-sm font-semibold text-gray-900">{monthLabel}</div>
-            <button
-              type="button"
-              onClick={() => setViewMonth(m => addMonths(m, 1))}
-              className="p-2 rounded-md hover:bg-gray-100 text-gray-700"
-              aria-label="Next month"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="9 18 15 12 9 6"></polyline>
-              </svg>
-            </button>
+            <div className="flex items-center space-x-1">
+              <button
+                type="button"
+                onClick={() => setViewMonth(m => addMonths(m, -12))}
+                className="p-1.5 rounded-md hover:bg-gray-100 text-gray-500"
+                aria-label="Previous year"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="11 17 6 12 11 7"></polyline>
+                  <polyline points="18 17 13 12 18 7"></polyline>
+                </svg>
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMonth(m => addMonths(m, -1))}
+                className="p-1.5 rounded-md hover:bg-gray-100 text-gray-700"
+                aria-label="Previous month"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+              </button>
+            </div>
+            
+            <div className="flex flex-col items-center mx-2">
+              <div className="text-sm font-bold text-gray-900 leading-tight">
+                {viewMonth.getFullYear()}
+              </div>
+              <div className="text-xs font-medium text-gray-600 leading-tight">
+                {viewMonth.toLocaleString("en-US", { month: "long" })}
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-1">
+              <button
+                type="button"
+                onClick={() => setViewMonth(m => addMonths(m, 1))}
+                className="p-1.5 rounded-md hover:bg-gray-100 text-gray-700"
+                aria-label="Next month"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMonth(m => addMonths(m, 12))}
+                className="p-1.5 rounded-md hover:bg-gray-100 text-gray-500"
+                aria-label="Next year"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="13 17 18 12 13 7"></polyline>
+                  <polyline points="6 17 11 12 6 7"></polyline>
+                </svg>
+              </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-7 text-xs text-gray-500 mb-1">
