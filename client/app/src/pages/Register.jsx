@@ -288,8 +288,15 @@ function Register() {
     }
 
     const emailOk = /^\S+@\S+\.\S+$/.test(formData.email);
+    const passwordOk = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/.test(formData.password);
+
     if (!emailOk) {
       setError("Please enter a valid email address");
+      return;
+    }
+
+    if (!passwordOk) {
+      setError("Password must be at least 8 characters and include uppercase, lowercase, number, and special character");
       return;
     }
 
